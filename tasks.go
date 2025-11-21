@@ -104,7 +104,7 @@ func (tasks *Tasks) markDone(id int) error {
 }
 
 func (tasks *Tasks) list(status *string) (Tasks, error) {
-	statuses = map[string]bool{
+	statuses := map[string]bool{
 		"": true,
 		"done": true,
 		"in-progress": true,
