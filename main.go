@@ -44,9 +44,19 @@ func main() {
 		Short: "Update task description",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			id, _ := strconv.Atoi(args[0])
-			tasks.edit(id, args[1])
-			tasks.save(filename)
+			id, err := strconv.Atoi(args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error invalid ID: %v\n", err)
+				os.Exit(1)
+			}
+			if err := tasks.edit(id, args[1]); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+			if err := tasks.save(filename); err != nil {
+				fmt.Fprintf(os.Stderr, "Error saving tasks: %v\n", err)
+				os.Exit(1)
+			}
 			fmt.Printf("Task %d updated successfully\n", id)
 		},
 	}
@@ -56,9 +66,19 @@ func main() {
 		Short: "Delete task",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			id, _ := strconv.Atoi(args[0])
-			tasks.delete(id)
-			tasks.save(filename)
+			id, err := strconv.Atoi(args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error invalid ID: %v\n", err)
+				os.Exit(1)
+			}
+			if err := tasks.delete(id); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+			if err := tasks.save(filename); err != nil {
+				fmt.Fprintf(os.Stderr, "Error saving tasks: %v\n", err)
+				os.Exit(1)
+			}
 			fmt.Printf("Task %d deleted successfully\n", id)
 		},
 	}
@@ -68,9 +88,19 @@ func main() {
 		Short: "Mark task as in progress",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			id, _ := strconv.Atoi(args[0])
-			tasks.markInProgress(id)
-			tasks.save(filename)
+			id, err := strconv.Atoi(args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error invalid ID: %v\n", err)
+				os.Exit(1)
+			}
+			if err := tasks.markInProgress(id); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+			if err := tasks.save(filename); err != nil {
+				fmt.Fprintf(os.Stderr, "Error saving tasks: %v\n", err)
+				os.Exit(1)
+			}
 			fmt.Printf("Task %d marked as in-progress\n", id)
 		},
 	}
@@ -82,7 +112,7 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			id, err := strconv.Atoi(args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: invalid task ID '%s'\n", args[0])
+				fmt.Fprintf(os.Stderr, "Error invalid ID: %v\n", err)
 				os.Exit(1)
 			}
 			if err := tasks.markDone(id); err != nil {
@@ -106,7 +136,10 @@ func main() {
 			if len(args) > 0 {
 				status = &args[0]
 			}
-			tasks.printList(status)
+			if err := tasks.printList(status); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
 		},
 	}
 

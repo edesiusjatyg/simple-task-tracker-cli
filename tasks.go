@@ -147,7 +147,7 @@ func (tasks *Tasks) load(filename string) error {
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
-	if err := json.Unmarshal(data, tasks), err != nil {
+	if err := json.Unmarshal(data, tasks); err != nil {
 		return fmt.Errorf("failed to unmarshal tasks: %w", err)
 	}
 	
