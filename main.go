@@ -12,7 +12,10 @@ const filename = "tasks.json"
 var tasks Tasks
 
 func main() {
-	tasks.load(filename)
+	if err := tasks.load(filename); err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading tasks: %v\n", err)
+		os.Exit(1)
+	}
 
 	var rootCmd = &cobra.Command{
 		Use:   "task-cli",
@@ -24,8 +27,14 @@ func main() {
 		Short: "Add a new task",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			tasks.add(args[0])
-			tasks.save(filename)
+			if err := tasks.add(args[0]); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+			if err := tasks.save(filename); err != nil {
+				fmt.Fprintf(os.Stderr, "Error saving tasks: %v\n", err)
+				os.Exit(1)
+			}
 			fmt.Printf("Task added successfully (ID: %d)\n", len(tasks))
 		},
 	}
@@ -71,9 +80,19 @@ func main() {
 		Short: "Mark task as done",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			id, _ := strconv.Atoi(args[0])
-			tasks.markDone(id)
-			tasks.save(filename)
+			id, err := strconv.Atoi(args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: invalid task ID '%s'\n", args[0])
+				os.Exit(1)
+			}
+			if err := tasks.markDone(id); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+			if err := tasks.save(filename); err != nil {
+				fmt.Fprintf(os.Stderr, "Error saving tasks: %v\n", err)
+				os.Exit(1)
+			}
 			fmt.Printf("Task %d marked as done\n", id)
 		},
 	}
