@@ -35,7 +35,7 @@ func main() {
 				fmt.Fprintf(os.Stderr, "Error saving tasks: %v\n", err)
 				os.Exit(1)
 			}
-			fmt.Printf("Task added successfully (ID: %d)\n", len(tasks))
+			fmt.Printf("Task added successfully\n")
 		},
 	}
 

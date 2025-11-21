@@ -21,9 +21,16 @@ func (tasks *Tasks) add(description string) error {
 	if description == "" {
 		return fmt.Errorf("task description cannot be empty")
 	}
+	
+	maxId := 0
+	for _, task := range *tasks{
+		if task.Id > maxId{
+			maxId = task.Id
+		}
+	}
 
 	task := Task{
-		Id:          len(*tasks) + 1,
+		Id:          maxId + 1,
 		Description: description,
 		Status:      "not-done",
 		CreatedAt:   time.Now(),
@@ -34,7 +41,7 @@ func (tasks *Tasks) add(description string) error {
 }
 
 func (tasks *Tasks) edit(id int, description string) error {
-	if id <= 0 || id > len(*tasks){
+	if id <= 0{
 		return fmt.Errorf("invalid ID")
 	}
 	if description == "" {
@@ -54,7 +61,7 @@ func (tasks *Tasks) edit(id int, description string) error {
 }
 
 func (tasks *Tasks) delete(id int) error {
-	if id <= 0 || id > len(*tasks) {
+	if id <= 0 {
 		return fmt.Errorf("invalid ID")
 	}
 
@@ -70,7 +77,7 @@ func (tasks *Tasks) delete(id int) error {
 }
 
 func (tasks *Tasks) markInProgress(id int) error {
-	if id <= 0 || id > len(*tasks){
+	if id <= 0 {
 		return fmt.Errorf("invalid ID")
 	}
 
@@ -87,7 +94,7 @@ func (tasks *Tasks) markInProgress(id int) error {
 }
 
 func (tasks *Tasks) markDone(id int) error {
-	if id <= 0 || id > len(*tasks){
+	if id <= 0 {
 		return fmt.Errorf("invalid ID")
 	}
 
@@ -116,7 +123,7 @@ func (tasks *Tasks) list(status *string) (Tasks, error) {
 	}
 
 	if !statuses[*status]{
-		return nil, fmt.Errorf("invalid status '%s' statuses: done, in-progress, not-done")
+		return nil, fmt.Errorf("invalid status '%s' statuses: done, in-progress, not-done", *status)
 	}
 
 	filtered := Tasks{}
@@ -145,8 +152,18 @@ func (tasks *Tasks) save(filename string) error {
 func (tasks *Tasks) load(filename string) error {
 	data, err := os.ReadFile(filename)
 	if err != nil {
+		if os.IsNotExist(err){
+			*tasks = Tasks{}
+			return nil
+		}
 		return fmt.Errorf("failed to read file: %w", err)
 	}
+
+	if len(data) == 0 {
+		*tasks = Tasks{}
+		return nil
+	}
+
 	if err := json.Unmarshal(data, tasks); err != nil {
 		return fmt.Errorf("failed to unmarshal tasks: %w", err)
 	}
